@@ -33,6 +33,23 @@
       "message": "Resolves vts failure.",
       "revId": "a52cb0139171e1459aeff117d9311ec3c8f99790",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53c818ff_51ad0f6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 19979
+      },
+      "writtenOn": "2024-08-22T22:39:07Z",
+      "side": 1,
+      "message": "https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/healthd-ext/-/commit/ad957d158ad1d53193536a2e0cee016836d90cd0",
+      "revId": "a52cb0139171e1459aeff117d9311ec3c8f99790",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
