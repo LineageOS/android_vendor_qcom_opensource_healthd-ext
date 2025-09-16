@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "436027d5_54fb8c1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29415
+      },
+      "writtenOn": "2025-09-16T22:35:16Z",
+      "side": 1,
+      "message": "test/vts-testcase/hal/treble/vintf/SingleManifestTest.cpp:744: Failure\nFailed\nFor android.hardware.health.IHealth/default, manifest (targeting FCM:8) declares version 3, but the actual version is 4\nEither the VINTF manifest \u0026lt;hal\u0026gt; entry needs to be updated with a version tag for the actual version, or the implementation should be changed to use the declared version",
+      "revId": "bc2932b076745271d6e5445f40b12662b812b85e",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
