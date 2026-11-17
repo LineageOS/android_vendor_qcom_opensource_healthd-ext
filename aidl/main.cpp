@@ -6,6 +6,8 @@
 #define LOG_TAG "android.hardware.health-service.qti"
 
 #include <android-base/logging.h>
+
+#include <algorithm>
 #include <android/binder_interface_utils.h>
 #include <cutils/klog.h>
 #include <cutils/properties.h>
@@ -124,6 +126,44 @@ retry:
     goto retry;
 }
 
+namespace aidl::android::hardware::health {
+
+// State of health for fuel gauges without a state_of_health sysfs node: learned full-charge
+// capacity over design capacity, in percent (BatteryManager.BATTERY_PROPERTY_STATE_OF_HEALTH,
+// Settings > Battery > Battery information).
+static int32_t StateOfHealth(int64_t full_uah, int64_t design_uah) {
+    if (full_uah <= 0 || design_uah <= 0) return 0;
+    int64_t soh = (full_uah * 100 + design_uah / 2) / design_uah;
+    return static_cast<int32_t>(std::clamp<int64_t>(soh, 1, 100));
+}
+
+class QtiHealth : public Health {
+  public:
+    using Health::Health;
+
+    ndk::ScopedAStatus getBatteryHealthData(BatteryHealthData* out) override {
+        auto status = Health::getBatteryHealthData(out);
+        if (status.isOk() && out->batteryStateOfHealth <= 0) {
+            out->batteryStateOfHealth =
+                    StateOfHealth(getFullChargeUah(), getFullChargeDesignCapacityUah());
+        }
+        return status;
+    }
+
+  protected:
+    void UpdateHealthInfo(HealthInfo* health_info) override {
+        Health::UpdateHealthInfo(health_info);
+        if (health_info->batteryHealthData.has_value() &&
+            health_info->batteryHealthData->batteryStateOfHealth <= 0) {
+            health_info->batteryHealthData->batteryStateOfHealth =
+                    StateOfHealth(health_info->batteryFullChargeUah,
+                                  health_info->batteryFullChargeDesignCapacityUah);
+        }
+    }
+};
+
+}  // namespace aidl::android::hardware::health
+
 int main(int argc, char** argv) {
 #ifdef __ANDROID_RECOVERY__
     android::base::InitLogging(argv, android::base::KernelLogger);
@@ -131,7 +171,8 @@ int main(int argc, char** argv) {
     auto config = std::make_unique<healthd_config>();
     ::android::hardware::health::InitHealthdConfig(config.get());
     qti_healthd_board_init(config.get());
-    auto binder = ndk::SharedRefBase::make<Health>(gInstanceName, std::move(config));
+    auto binder = ndk::SharedRefBase::make<aidl::android::hardware::health::QtiHealth>(
+            gInstanceName, std::move(config));
 
     if (argc >= 2 && argv[1] == gChargerArg) {
 #if !CHARGER_FORCE_NO_UI
